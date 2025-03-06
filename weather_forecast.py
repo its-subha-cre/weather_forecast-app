@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
-from youtubesearchpython import VideosSearch
+from pytube import YouTube
+from pytube import Search
 
 # OpenWeatherMap API Key
 api_key = "4e5f1dbfe280ccb6c3576630c8488dc4"
@@ -15,16 +16,17 @@ page_bg_img = """
 </style>
 """
 st.markdown(page_bg_img, unsafe_allow_html=True)
-# Function to search YouTube and fetch multiple unique video URLs using youtube-search-python
+
+# Function to search YouTube and fetch multiple unique video URLs using pytube
 def get_youtube_video_urls(query, num_results=3):
     try:
-        # Use youtube-search-python to search YouTube for videos based on the query
-        video_search = VideosSearch(query, limit=num_results)
-        search_results = video_search.result()
-
+        # Use pytube Search to search YouTube for videos based on the query
+        search = Search(query)
+        search_results = search.results[:num_results]  # Limit to num_results
+        
         video_urls = []
-        for result in search_results["result"]:
-            video_urls.append(f"https://www.youtube.com/watch?v={result['id']}")
+        for result in search_results:
+            video_urls.append(f"https://www.youtube.com/watch?v={result.video_id}")
         
         return video_urls
     except Exception as e:
@@ -86,10 +88,6 @@ if city:
             current_video_url = st.session_state.video_urls[st.session_state.current_song_index]
             st.write(f"Playing YouTube video for: {query}")
             st.video(current_video_url)
-
-            # Debugging the session state
-            # st.write(f"Session State (video_urls): {st.session_state.video_urls}")
-            # st.write(f"Current Song Index: {st.session_state.current_song_index}")
 
             # "Previous" and "Next" buttons to change songs
             col1, col2 = st.columns([1, 1])
